@@ -1,0 +1,30 @@
+version: 2
+
+jobs:
+  app_test:
+    docker:
+      - image: circleci/node:8-browsers
+    steps:
+      - checkout
+      - run: cd server && npm install && npm test
+
+  build_and_push:
+    machine:
+      docker_layer_caching: true
+
+    steps:
+      - checkout
+      - run: script/build_and_push.sh
+
+workflows:
+  version: 2
+  the_whole_shebang:
+    jobs:
+      - app_test
+      - build_and_push:
+          requires:
+            - app_test
+        filters:
+            branches:
+              only:
+                - master
